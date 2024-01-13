@@ -10,7 +10,7 @@ $targetDir = "../ContentCreator/uploads/";
 $allowedFormats = array("mp4", "avi", "mkv", "mov", "wmv");
 
 // Update the maximum file size to 500MB
-$maxFileSize = 1073741824 ; // 500MB in bytes
+$maxFileSize = 500 * 1024 * 1024; // 500MB in bytes
 
 
 $response = array();
@@ -19,13 +19,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     // Check if a file was selected for upload
     if (!empty($_FILES["videoFile"]["name"])) {
         // Check if the file size exceeds the maximum allowed size
-        // if ($_FILES["videoFile"]["size"] > $maxFileSize) {
-        //     // echo '<script>alert("Sorry, the file size exceeds the maximum allowed limit of 500MB.");</script>';
-        //     // echo '<script>window.location.href = "../ContentCreator/contentCreatorsHub.php";</script>';
+        if ($_FILES["videoFile"]["size"] > $maxFileSize) {
+            // echo '<script>alert("Sorry, the file size exceeds the maximum allowed limit of 500MB.");</script>';
+            // echo '<script>window.location.href = "../ContentCreator/contentCreatorsHub.php";</script>';
 
-        //     $response = array('success' => false,'message' => 'Sorry, the file size exceeds the maximum allowed limit of 500MB');
+            $response = array('success' => false,'message' => 'Sorry, the file size exceeds the maximum allowed limit of 500MB');
            
-        // }
+        }
 
         // Get the uploaded file details
         $fileName = basename($_FILES["videoFile"]["name"]);
