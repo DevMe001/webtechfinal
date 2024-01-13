@@ -1,0 +1,462 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+
+@font-face {
+    font-family: SF-Pro;
+    src: url(../font)(format('OpenType font file'));
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+/* Media Query for smaller screens */
+@media only screen and (max-width: 768px) {
+    .Wrapper {
+        height: auto;
+    }
+}
+
+/* CSS FOR headerHub.php*/
+.banner {
+    background-color: rgb(2, 2, 112);
+    color: blue;
+    padding: 20px;
+    text-align: center;
+}
+
+.logout-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    text-decoration: none;
+    color: #fff;
+    padding: 28px 28px;
+    background-color: #434b6d; /* Green background color */
+    border: none; /* Remove borders */
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer; /* Add a pointer on hover */
+}
+
+.skyblue-text {
+    color: skyblue;
+}
+
+.white-text {
+    color: white;
+}
+
+/* CSS FOR LOGIN*/
+.login-info {
+    text-align: center;
+    font-style: bold;
+    margin-top: 70px;
+    color: navy;
+    font-size: 20px;
+}
+
+.date-time {
+    text-align: center;
+    margin-top: 20px;
+    font-family: san system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    font-style: bold;
+    color: navy;
+}
+
+form {
+    text-align: center;
+    margin-top: 60px;
+}
+
+form label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+form input {
+    margin-bottom: 10px;
+    padding: 5px;
+}
+
+footer {
+    background-color: rgb(13, 46, 130); 
+    color: white;
+    text-align: left;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 5px;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    height: 100px;
+    line-height: 0.2;
+}
+
+footer p {
+    padding: 1rem;
+}
+
+/* CSS FOR ADMIN */
+h1{
+    text-align: center;
+    padding: 10px 0 10px 0;
+}
+
+#adminTitle{
+    text-align: center;
+}
+
+/* Square container styles */
+#buttonContainer {
+    width: 80%;
+    height: 100%;
+    background-color: #e1e1e1;
+    border-radius: 20px;
+    margin: 0 auto;
+    padding: 20px; /* Add padding to the container */
+    text-align: center; /* Center align the contents */
+}
+
+#buttonContainer h2{
+    text-align: left;
+}
+
+/* Form Container */
+.form-container {
+    display: inline-block;
+    margin-right: 10px;
+    margin-top: -46px;
+}
+
+/* Apply block-level display to buttons and styles */
+button {
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+#buttonContainer #addLink{
+    margin: 0 auto;
+}
+
+#addBtn {
+    margin: 0 auto;
+    background-color: #2196F3;
+    color: white;
+}
+
+#addBtn:hover{
+    background-color: white;
+    color: #2196F3;
+}
+
+#tabAcc{
+    margin: 0 auto;
+    width: 70%;
+}
+
+#tabAcc th{
+    font-size: large;
+    background-color: #acacac;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+#tabAcc tr:hover{
+    background-color: #bcd3e6;
+}
+
+#tabAcc tr td{
+    text-align: center;
+}
+
+#updateBtn {
+    background-color: #537453;
+    color: white;
+}
+
+#updateBtn:hover{
+    background-color: white;
+    color: #537453;
+}
+
+#deleteBtn {
+    background-color: #f44336;
+    color: white;
+}
+#deleteBtn:hover{
+    background-color: white;
+    color: #f44336;
+}
+
+#noDelete {
+    pointer-events: none;
+    background-color: #777;
+    color: white;
+}
+
+/* CSS FOR ADDACCOUNT.PHP */
+
+.accountAdd{
+    width: 1000px;
+    height: 100%;
+    background-color: #e1e1e1;
+    border-radius: 20px;
+    margin: 0 auto;
+    padding: 20px; /* Add padding to the container */
+    text-align: center;
+}
+
+#backBtn{
+    background-color: #888888;
+    color: white;
+    float: left;
+}
+
+/* CSS FOR UPDATEACCOUNT.PHP */
+
+#updtBtn{
+    background-color: #537453;
+    color: white;
+}
+
+#updtBtn:hover{
+    background-color: white;
+    color: #537453;
+}
+
+/* Media query for screens smaller than 768px (portrait) */
+@media (max-width: 768px) and (orientation: portrait) {
+    .login-info {
+        font-size: 18px;
+        margin-top: 50px;
+    }
+
+    .date-time {
+        font-size: 16px;
+        margin-top: 10px;
+    }
+
+    form {
+        margin-top: 40px;
+    }
+}
+
+/* Media query for screens smaller than 1024px (landscape) */
+@media (max-width: 1024px) and (orientation: landscape) {
+    .login-info {
+        font-size: 20px;
+        margin-top: 60px;
+    }
+
+    .date-time {
+        font-size: 18px;
+        margin-top: 15px;
+    }
+
+    form {
+        margin-top: 50px;
+    }
+}
+
+/* Media query for screens smaller than 1440px (portrait) */
+@media (max-width: 1440px) and (orientation: portrait) {
+    .login-info {
+        font-size: 22px;
+        margin-top: 80px;
+    }
+
+    .date-time {
+        font-size: 20px;
+        margin-top: 20px;
+    }
+
+    form {
+        margin-top: 60px;
+    }
+}
+
+
+/* CSS FOR CONTENT CREATOR */
+.upload-container {
+    padding-top: 10spx; /* Adjust the top padding as needed */
+    padding-left: 20px;
+    margin-top: 10px;
+}
+
+.upload {
+    background-color: navy;
+    padding: 20px;
+    text-align: center;
+    color: white;
+    width: 300px;
+    height: 540px;
+    border-radius:20px;
+}
+
+.upload form{
+    margin-top: 0px;
+}
+
+.contentTitle {
+    background-color: white;
+    color: black;
+    padding: 10px;
+    margin: -3px;
+    border-radius: 5px;
+}
+
+.controlrectangle2, .controlrectangle3 {
+    background-color: white;
+    color: black;
+    border-radius: 5px;
+    padding: 10px 20px;
+    margin: 8px auto; /* Set margin to auto for center alignment */
+    border: none;
+    cursor: pointer;
+    width: 120px;
+    
+}
+
+.recordedrectangle2 img{
+    width: 700px; 
+    height: 393.75px; 
+    display: block;
+}
+
+.startcamera {
+    background-color: #0096FF;
+    color: white;
+    padding: 10px 20px;
+    margin-left: 51px;
+    margin-top: 25px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.endcamera{
+    background-color: gray;
+    color: white;
+    padding: 10px 20px;
+    margin-left: 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.uploadimage, .uploadvideo {
+    margin: 5px;
+}
+
+
+#videoUpload{
+    margin: 20px 0;
+}
+
+#imagePreview, #videoPreview {
+    margin: 20px 0;
+    max-width: 100%;
+    height: auto;
+    display: none;
+}
+
+.livestream2 {
+    background-color: #333;
+    color: white;
+    padding: 20px;
+    text-align: center;
+    margin-left: 380px;
+    margin-top: -580px;
+    width: 700px;
+    border-radius: 5px;
+    height: 440px;
+}
+
+.onAir {
+    background-color: gray;
+    color: white;
+    border-radius: 5px;
+    padding: 20px 20px;
+    margin-top: -468px;
+    margin-left: 1000px;
+    height: 5px;
+    width: 60px;
+}
+
+.recordedrectangle2 {
+    background-color: white;
+    color: black;
+    border-radius: 5px;
+    margin-top: -5px;
+    margin-left: 400px;
+    border: none;
+    width: 700px;
+    height: 393.75px;
+    text-align: center;
+}
+
+img#streamPlaceholderImage{
+    margin-top: -397px; 
+}
+
+.reminder{
+    color: white;
+    font-size: larger;
+    font-weight: 500;
+    background-color: #ff0000;
+    border-radius: 5px;
+    width: 690px;
+    margin: -46px 0 0 410px;
+    text-align: center;
+}
+
+.deletescene{
+    background-color: #000080;
+    color: rgb(255, 255, 255);
+    padding: 20px;
+    text-align: center;
+    margin-left: 1140px;
+    margin-top: -552px;
+    margin-bottom: 60px;
+    width: 327px;
+    height: 75px;
+    border-radius: 5px;
+}
+
+form#deleteSceneForm{
+    text-align: center;
+    margin-top: 13px;
+    
+}
+
+.history {
+    background-color: #000080;
+    color: white;
+    padding: 20px;
+    text-align: center;
+    margin-left: 1140px;
+    margin-top: -40px;
+    width: 330px;
+    border-radius: 5px;
+    height: 406px;
+}
+
+.recordedrectangle3 {
+    background-color: white;
+    color: black;
+    border-radius: 5px;
+    padding: 20px 20px;
+    margin-top: -390px;
+    margin-left: 1160px;
+    border: none;
+    width: 290px;
+    height: 326px;
+    text-align: center;
+    overflow: auto;
+}

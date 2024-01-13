@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>streaming</title>
+
+     <style>
+      .hidden{
+        display: none;
+      }
+     </style>
+
+</head>
+  <script src="../tailwind.js""></script>
+ <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<body>
+  <div class="w-screen h-full  bg-gray-200">
+    <article class="flex justify-center items-center">
+      <!-- viweer screen -->
+
+     <section id="showCurrent" class="relative w-full h-full hidden">
+        <video id="videoViewer" class="hidden" muted controls style='width:100vw; height: 100vh;'></video>
+
+        <img id="getStreamVideo" class="hidden" style='width:100vw; height: 100vh;'  >
+
+        <div class="absolute top-20 z-10 w-full">
+            <p class="text-white font-medium text-2xl text-center">Streaming now</p>
+        </div>
+       
+    </section>
+
+    <section id="defaultPreview">
+        <img id="streamPlaceholderImage" src="../../style/images/schedule.png" alt="Stream Placeholder" style='width:100vw; height: 100vh;' >
+       
+    </section>
+    
+
+    </article>
+
+  </div>
+</body>
+
+
+<script>
+  // connect socket and get element id for video
+  const video = document.getElementById('videoViewer');
+  const streamVideo = document.getElementById('getStreamVideo');
+  const showCurrent = document.getElementById('showCurrent');
+  const defaultPreview = document.getElementById('defaultPreview');
+
+  const url = 'wss://websocket-7q4d.onrender.com';
+  const local = 'ws://localhost:3000/';
+  const socket = new WebSocket(url);
+
+// this use converting array buffer to prevent type null
+  // socket.binaryType = 'arraybuffer';
+
+let isUploadedVideo =false;
+
+  socket.onopen = open =>{
+
+
+
+    if (video.paused) {
+            video.play();   
+      }
+
+    console.log('socket is connected');
+  }
+
+  socket.onclose = open =>{
+    console.log('socket is disconnected');
+  }
+
+  // const mediaSource = new MediaSource();
+
+  // // call
+  // videoViewer.src = URL.createObjectURL(mediaSource);
+
+
+
+
+
+    const safeJsonParse = (str) => {
+        try {
+            const jsonValue = JSON.parse(str);
+
+            return jsonValue;
+        } catch {
+            return undefined;
+        }
+  };
+
+
+    let updateImage = debounce(function (base64String) {
+        streamVideo.src = base64String;
+        
+    }, 100); 
+
+    // Debounce function to limit the frequency of updates
+        function debounce(func, delay) {
+            let timeout;
+            return function () {
+                const context = this;
+                const args = arguments;
+                clearTimeout(timeout);
+                timeout = setTimeout(function () {
+                    func.apply(context, args);
+                }, delay);
+            };
+        }
+
+    socket.onmessage = event =>{
+
+    isUploadedVideo=true;
+
+
+      const response = safeJsonParse(event.data);
+
+
+   showCurrent.classList.remove('hidden');
+   defaultPreview.classList.add('hidden');
+
+
+      // console.log(typeof response,'get response');
+      // console.log(response,'get response');
+
+     if (typeof response == 'object') {
+
+
+        streamVideo.classList.add('hidden');
+         video.classList.remove('hidden');
+       
+    
+          if(response.event == 'uploaded'){
+
+                 video.src = response.data.filePath;
+                  video.removeAttribute('muted');
+
+                  if (video.paused) {
+                    video.play();   
+                     video.removeAttribute('muted');
+                  }
+
+          }
+          else if(response.event == 'disconnected'){
+
+              video.src = '';
+              streamVideo.src = '';
+              isUploadedVideo=false;
+               showCurrent.classList.add('hidden');
+              defaultPreview.classList.remove('hidden');
+          }else{
+             showCurrent.classList.add('hidden');
+            defaultPreview.classList.remove('hidden');
+          }
+        
+        
+
+
+    } else {
+       
+      
+        streamVideo.classList.remove('hidden');
+        video.classList.add('hidden');
+          reader = new FileReader();
+
+          reader.onload = () => {
+              console.log("Result: " + reader.result);
+              updateImage(reader.result)
+          };
+
+        reader.readAsText(event.data);
+        isUploadedVideo=false;
+
+    }
+
+
+    }
+
+    video.addEventListener('canplay', () => {
+          if (video.paused) {
+                video.play();   
+                video.removeAttribute('muted');
+
+          }
+    });
+
+   
+  
+
+ socket.onclose = error =>{
+    console.log('socket is disconnected' + error);
+   showCurrent.classList.add('hidden');
+   defaultPreview.classList.remove('hidden');
+  }
+ 
+  
+  socket.onerror = error =>{
+    console.log('socket is disconnected' + error);
+     showCurrent.classList.add('hidden');
+     defaultPreview.classList.remove('hidden');
+  }
+
+
+
+  window.onunload = function(){
+  
+      $(document).ready(function(){
+      if(isUploadedVideo){
+        
+        $.ajax({
+          url:'../includes/getVideoRecent.php',
+          method:'GET',
+          dataType:'json',
+          success:function(res){
+            if(res.success){
+              let quoue = res;
+
+              console.log(quoue);
+              
+              showCurrent.classList.remove('hidden');
+              defaultPreview.classList.add('hidden');
+
+              
+              streamVideo.classList.add('hidden');
+              video.classList.remove('hidden');
+            
+
+              video.src = quoue.data[2];
+              video.play();     
+              video.removeAttribute('muted');
+
+            }
+          },
+          error:function(){ 
+
+          }
+        })
+          
+      }
+
+
+      })
+}
+
+
+
+</script>
+</html>

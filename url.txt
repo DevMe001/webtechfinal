@@ -1,0 +1,6 @@
+url for viewer
+http://localhost/webtechfinal/?page=viewer
+
+
+url for login page
+http://localhost/webtechfinal/?page=admin
