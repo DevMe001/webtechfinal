@@ -119,7 +119,7 @@ $('#startBtn').on('click',function(){
 
    const url = 'wss://websocket-7q4d.onrender.com';
    const local = 'ws://localhost:3000';
-    socket = new WebSocket(url);
+    socket = new WebSocket(local);
 
 
 
@@ -151,7 +151,7 @@ $('#startBtn').on('click',function(){
                 canvas.width = video.videoWidth;
                 canvas.height = video.videoHeight;
                 canvas.getContext('2d').drawImage(video, 0, 0);
-                const data = canvas.toDataURL('video/webm');
+                const data = canvas.toDataURL('image/png');
                 return data;
             };
 
@@ -162,7 +162,7 @@ $('#startBtn').on('click',function(){
                 console.log(`Connected to ${socket}`);
                 setInterval(() => {
                     socket.send(getFrame());
-                }, 100 / FPS);
+                }, 500 / FPS);
             };
 
 
@@ -195,7 +195,7 @@ $('#startBtn').on('click',function(){
 
             const url = 'wss://websocket-7q4d.onrender.com';
              const local = 'ws://localhost:3000/';
-                const socket = new WebSocket(url);
+                const socket = new WebSocket(local);
 
 
               socket.onopen = open =>{
@@ -396,7 +396,7 @@ $(document).ready(function() {
 
    const url = 'wss://websocket-7q4d.onrender.com';
    const local = 'ws://localhost:3000';
-    socket = new WebSocket(url);
+    socket = new WebSocket(local);
 
 
  var localVideo = document.getElementById('localVideo');

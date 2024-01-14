@@ -190,7 +190,7 @@ function stopcamera() {
    const url = 'wss://websocket-7q4d.onrender.com';
    
    const local = 'ws://localhost:3000';
-   socket = new WebSocket(url);
+   socket = new WebSocket(local);
 
      const filetoSend = {
 				event: 'disconnected',
