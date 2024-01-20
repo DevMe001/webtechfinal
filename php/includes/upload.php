@@ -1,7 +1,7 @@
 <?php
 // import
 include('../db.php');
-include('validateAndAlert.php');
+
 
 // Set the target directory for video uploads
 $targetDir = "../ContentCreator/uploads/";
@@ -32,13 +32,20 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $targetFilePath = $targetDir . $fileName;
         $fileType = pathinfo($targetFilePath, PATHINFO_EXTENSION);
 
+        
+
         // Check if the file format is allowed
         if (in_array($fileType, $allowedFormats)) {
             // Upload the file to the server
+            $date = date('YmdHis');
+            $removeSpace = str_replace('-', '', $date);
+            $newFileName = generateUniqueFileName($targetDir, "recorded$removeSpace" . $fileName, $fileType);
+            $targetFilePath = $targetDir . $newFileName;
+
+
             if (move_uploaded_file($_FILES["videoFile"]["tmp_name"], $targetFilePath)) {
                 // File upload successful, now insert into the uploads folder
                 $fileTitle = $_POST["fileTitle"];
-                validateAndAlert($fileTitle, 'fileTitle');
                 $filePath = $targetFilePath;
 
                 // File upload successful, now insert into the database
@@ -47,9 +54,33 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $stmt->bind_param("ss", $fileTitle, $filePath);
 
                 if ($stmt->execute()) {
-                    
-                    $response = array('success' => true, 'message' => 'File has been uploaded and database entry added successfully.','uploaded' => $_FILES["videoFile"]["name"],'name' => $_POST['fileTitle']);
 
+                    $login_inserted = $db->prepare("INSERT INTO recent_logs (type, event,userId) VALUES (?, ?, ?)");
+
+                    session_start();
+
+                    $uploadName = 'uploaded';
+                    $getName = ucwords($_SESSION['username']);
+                    $events = "$getName uploaded  a file";
+                    $userId = $_SESSION['userID'];
+
+                     $respObj = [
+                        (object) [
+                            'uploadName' => $uploadName,
+                            'events' => $events,
+                            'userId' => $userId 
+                        ]
+                    ];
+
+                    $login_inserted->bind_param("ssi",$uploadName, $events,$userId);
+                    
+                    if($login_inserted->execute()){
+                        $response = array('success' => true, 'message' => 'File has been uploaded and database entry added successfully.', 'uploaded' => $newFileName, 'name' => $_POST['fileTitle'], 'logs' => $respObj);
+                    }
+                    else{
+                    $response = array('success' => false, 'message' => 'Sorry, logs not working');
+
+                    }
                     // echo '<script>alert("File has been uploaded and database entry added successfully.");</script>';
                 } else {
                     $response = array('success' => false, 'message' => 'Sorry, there was an error inserting data into the database.');
@@ -83,4 +114,20 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     echo json_encode($response);
 }
-?>
+
+
+function generateUniqueFileName($targetDir, $fileName, $fileType)
+{
+    // Replace spaces with underscores in the filename
+    $fileName = str_replace(' ', '', $fileName);
+
+    $newFileName = $fileName;
+    $counter = 1;
+
+    while (file_exists($targetDir . $newFileName)) {
+        $newFileName = "recorded" . $counter . "." . $fileType;
+        $counter++;
+    }
+
+    return $newFileName;
+}

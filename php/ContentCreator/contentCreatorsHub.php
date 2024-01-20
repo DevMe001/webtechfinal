@@ -1,7 +1,18 @@
 <?php
     include('../secure.php'); // Include the secure page to check if the user is logged in
-    include('../includes/checkRole.php');
+include('../includes/checkRole.php');
+include('../includes/getRecentLogs.php');
+    
     checkUserRole('c');
+
+
+$getRecentLogs = getRecentLogs();
+
+$totalLogs = count($getRecentLogs) > 0 ? true : false;
+
+
+
+    
 ?>
 
 <!DOCTYPE html>
@@ -32,6 +43,37 @@
             width:100%;
             max-width: 90rem;
             margin-inline:auto;
+        }
+        .log-details{
+            width:350px;
+            max-width: 350px;
+            height: auto;
+            max-height: 400px;
+            background:navy;
+            overflow-y: auto;
+            margin:0.875rem 20px;
+            border-radius: 24px;
+            color:#ffffff;
+            text-align: center;
+        }
+
+        .log-flex{
+            display:flex;
+            flex-flow: column wrap;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .log-details {
+            max-width: 90%; /* Ensure each log entry takes the full width */
+            overflow-x: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap; 
+        }
+
+        .log-details> code {
+            text-align: center;
+
         }
     </style>
 </head>
@@ -77,6 +119,8 @@
             <button class="endcamera" onclick="stopcamera()" id="endBtn">End Camera</button>
         </div>
 
+        
+
     <div class="reminder">
         <?php include('../includes/time.php'); ?>
             <h3>STAY ON THIS PAGE WHEN THE STREAM IS ABOUT TO BEGIN</h3>
@@ -84,7 +128,8 @@
     
         <div class="deletescene">
             <div class="contentTitle">Skip Video</div>
-            <form id="deleteSceneForm" action="../includes/deleteScene.php" method="POST">
+            <form id="deleteSceneForm" >
+                <input type="hidden" name="filePath" id='getFilePath'>
                 <button type="submit" class="delete" name="deleteScene">Skip</button>
             </form>
         </div>
@@ -94,13 +139,45 @@
                 <p>Scenes Sequence</p>
     
             </div>
-    
+           <input type="hidden" name="" id='getCurrentId'>
+           <input type="hidden" name="" id='getCurrentIndex' >
+           <input type="hidden" name="" id='getLastPlayed' val=''>
+
+
     
             <div id="playlistContainer" class="recordedrectangle3">
                 <p style="font-size:1.2rem;font-weight:500;" id='noContent'>No video available.</p>
             </div>
     
     
+        </div>
+
+
+        <div id='showRecentLogs' class="log-details">
+                <h4 style='text-align:center; padding-top:1rem;'>Recent logs</h4>
+
+           <div  class="log-flex">
+
+                <?php
+                
+                if($totalLogs){
+                   
+                     foreach ($getRecentLogs as $key => $logs) {
+                        ?>
+                         <div id='getLogs' class="log-details">
+                            <div></div>
+                            <code><?php echo $logs['event']; ?></code>
+                        </div>
+                        
+                        <?php
+                     }
+                   
+                  }
+                         
+                ?>
+          
+          
+           </div>
         </div>
 </div>
 </body>
@@ -110,7 +187,101 @@
 
 
 <script>
+
+// skip button
+$('#deleteSceneForm').submit(function(e){
+
+    e.preventDefault();
+    
+
+    let getVideo = $('#localVideo')[0];
+
+    let logFile = getVideo.currentSrc.split('/').pop();
+    let getId = $("#getCurrentId").val();
+    let getPath = $('#getFilePath').val();
+
+     $.ajax({
+                url: '../includes/deleteScene.php',
+                method: 'POST',
+                data:{logFile:logFile,fileId:getId,filePath:getPath},
+                dataType:'json',
+                success: function(res) {
+
+                    console.log(res,'get res')
+                    // Handle success
+                    if(res.success){
+                        
+                       let logsRecent = `<div id='getLogs' class="log-details">
+                                                <div></div>
+                                                <code>${res.logs[0].events}</code>
+                                                    </div>`;
+
+
+                        $('#getLogs').prepend(logsRecent);
+
+                          Swal.fire({
+                            position: 'center',
+                            icon: 'success',
+                            title: res.message, 
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+
+
+                        setTimeout(() => {
+                            location.reload();
+                        }, 1000);
+                    }else{
+                          Swal.fire({
+                            position: 'center',
+                            icon: 'error',
+                            title: res.message, 
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                    }
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    // Log the error message to the console
+                    console.error('Error:', errorThrown);
+
+                    // You can also access additional information like status code and status text
+                    console.error('Status Code:', jqXHR.status);
+                    console.error('Status Text:', jqXHR.statusText);
+                }
+
+    });
+
+})
+
 // if on air
+$('#endBtn').click(function(){
+         $.ajax({
+						url: '../includes/newRecentLogs.php',
+						method: 'POST',
+						data: { type: 'stream', event: 'ended  a stream' },
+						dataType: 'json',
+						success: function (res) {
+							console.log(res, 'get res');
+							// Handle success
+							if (res.success) {
+								// let logsRecent = `<code>${res.logs[0].events}</code>`;
+								let logsRecent = `<div id='getLogs' class="log-details">
+                                                <div></div>
+                                                <code>${res.logs[0].events}</code>
+                                                    </div>`;
+
+                            
+
+                                $('#getLogs').prepend(logsRecent);
+                            }
+                        },
+                        error: function (err) {
+                            console.error('Error:', err);
+                        },
+                    });
+
+})
 
 
 $('#startBtn').on('click',function(){
@@ -177,12 +348,40 @@ $('#startBtn').on('click',function(){
 
 
 
+      $.ajax({
+                url: '../includes/newRecentLogs.php',
+                method: 'POST',
+                data:{type:'stream',event:'started  a stream'},
+                dataType:'json',
+                success: function(res) {
+
+                    console.log(res,'get res')
+                    // Handle success
+                    if(res.success){
+                        
+                       let logsRecent = `<div id='getLogs' class="log-details">
+                                                <div></div>
+                                                <code>${res.logs[0].events}</code>
+                                                    </div>`;
+
+                        $('#getLogs').prepend(logsRecent);
+                    }
+                },
+                error: function(err) {
+                    console.error('Error:', err);
+     }
+
+    });
+
  
 
 });
 
 
   function appendToScreen(data) {
+
+    console.log(data,'get data');
+
         try {
             $('#streamPlaceholderImage').hide();
 
@@ -191,9 +390,15 @@ $('#startBtn').on('click',function(){
             video.src = data.filePath;
             video.setAttribute('controls',true);
 
-                    // push to viewer side 
 
-            const url = 'wss://websocket-7q4d.onrender.com';
+
+                    // push to viewer side 
+         $('#getCurrentId').val(data.id);
+         $('#getFilePath').val(data.filePath.split('/').pop());
+         $('#getCurrentIndex').val(data.index);
+         $('#getLastPlayed').val('');
+
+            // const url = 'wss://websocket-7q4d.onrender.com';
              const local = 'ws://localhost:3000/';
                 const socket = new WebSocket(local);
 
@@ -207,18 +412,28 @@ $('#startBtn').on('click',function(){
                   
                      socket.send(JSON.stringify(filetoSend));
 
+            let fileSplit = data.filePath.split('/');
+            
                 
                 $.ajax({
                 url: '../includes/uploadRecorded.php',
                 method: 'POST',
-                data:{fileTitle:data.fileTitle,filePath:data.filePath},
+                data:{fileTitle:data.fileTitle,filePath:data.filePath,logFile:fileSplit.pop()},
                 dataType:'json',
                 success: function(res) {
 
                     console.log(res,'get res')
                     // Handle success
                     if(res.success){
-                        console.log(res)
+                       
+                       let logsRecent = `<div id='getLogs' class="log-details">
+                                                <div></div>
+                                                <code>${res.logs[0].events}</code>
+                                                    </div>`;
+
+                        $('#getLogs').prepend(logsRecent);
+
+
                           Swal.fire({
                             position: 'center',
                             icon: 'success',
@@ -257,15 +472,24 @@ $(document).ready(function() {
             if (res.data.length > 0) {
 
                 $('#noContent').hide();
+
+          
                
-                res.data.forEach(data => {
+                res.data.forEach((data,i) => {
+
+
+                    const resData = {
+                        index:i,
+                        ...data
+                    }
 
                    
+                    
 
                     const el = `
-                        <div style='cursor:pointer;' class="video-preview" onclick="appendToScreen(${JSON.stringify(data).replace(/"/g, '&quot;')})">
+                        <div style='cursor:pointer;' class="video-preview" onclick="appendToScreen(${JSON.stringify(resData).replace(/"/g, '&quot;')})">
                             <strong>${data.fileTitle}</strong>
-                            <video  muted  width="100%">
+                            <video data-title='${data.fileTitle}' id='${data.id}'  muted  width="100%">
                                 <source src="${data.filePath}" type="video/mp4">
                                 Your browser does not support the video tag
                             </video>
@@ -332,7 +556,7 @@ $(document).ready(function() {
                 dataType:'json',
                 success: function(res) {
 
-                    console.log(res,'get res')
+                    console.log(res,'get res');
                     // Handle success
                     if(res.success){
                    
@@ -342,11 +566,21 @@ $(document).ready(function() {
                             title: res.message, 
                             showConfirmButton: false,
                             timer: 1500
-                        }).then((result) =>{
+                        }).then((result,i) =>{
                             const data = {
+                            index:i,
                             fileTitle:res.name,
                             filePath:`../ContentCreator/uploads/${res.uploaded}`
                         };
+
+
+                        let logsRecent = `<div id='getLogs' class="log-details">
+                                                <div></div>
+                                                <code>${res.logs[0].events}</code>
+                                                    </div>`;
+
+
+                        $('#getLogs').prepend(logsRecent);
                         
                         const el = `
                         <div style='cursor:pointer;' class="video-preview" onclick="appendToScreen(${JSON.stringify(data).replace(/"/g, '&quot;')})">
@@ -362,7 +596,7 @@ $(document).ready(function() {
                       
                      appendToScreen(data);
 
-                     stopcamera();
+                    //  stopcamera();
             
 
                      $('#playlistContainer').show();
@@ -402,21 +636,175 @@ $(document).ready(function() {
  var localVideo = document.getElementById('localVideo');
       
 
-localVideo.addEventListener('play', function() {
-    console.log('Video is currently playing');
+// localVideo.addEventListener('play', function() {
+//     console.log('Video is currently playing');
 
-    // Send a message to the WebSocket when the video starts playing
-    socket.send(JSON.stringify({ action: 'play' }));
-});
+//     // Send a message to the WebSocket when the video starts playing
+//     socket.send(JSON.stringify({ action: 'play' }));
+// });
 
-localVideo.addEventListener('pause', function() {
-    console.log('Video is currently paused');
+localVideo.addEventListener('ended', function() {
+   let getAllPlayList = document.querySelectorAll('.video-preview > video');
 
-    // Send a message to the WebSocket when the video is paused
-    socket.send(JSON.stringify({ action: 'pause' }));
-});
+    let ctvArrList = Array.from(getAllPlayList);
+    let currentId = $('#getCurrentId').val();
+    let currentIndex =  Number($('#getCurrentIndex').val());
+       
+
+       console.log(currentIndex,'get array list');
+       console.log(ctvArrList.length - 1,'get length list');
+
+
+    if(currentIndex  <= ctvArrList.length -1){
+        
+
+
+
+
+    let getId = 0;
+
+ 
+    ctvArrList.map((item,i) => {
+
+            if(currentId == item.id){
+                
+                getId = i+1;
+             
+     
+            }
+            
+    });
 
     
+    //   console.log('get id',getId);
+
+    let isSend = [];
+
+      if(getId < ctvArrList.length){
+          ctvArrList.filter((item,i) => i === getId).forEach(item =>{
+                    localVideo.src = item.currentSrc;
+                    localVideo.play();
+                 
+                   $('#getCurrentId').val(item.id);
+                  
+                    isSend.push({
+                    valid:true,
+                    getSrc:item.currentSrc,
+                    getId:item.id,
+                    gettitle:item.dataset.title
+                   });
+                   
+            });
+
+
+           if(isSend.length > 0){
+               const local = 'ws://localhost:3000/';
+                const socket = new WebSocket(local);
+
+
+                const data = {
+                    id:isSend[0].getId,
+                    fileTitle:isSend[0].gettitle,
+                    filePath:`../ContentCreator/uploads/${isSend[0].getSrc.split('/').pop()}`,
+                };
+
+
+              socket.onopen = open =>{
+
+                const filetoSend = {
+                    event:'uploaded',
+                    data:data
+                }
+                  
+                     socket.send(JSON.stringify(filetoSend));
+
+                 let fileSplit = data.filePath.split('/');
+                 
+            
+                
+                $.ajax({
+                url: '../includes/uploadRecorded.php',
+                method: 'POST',
+                data:{fileTitle:data.fileTitle,filePath:isSend[0].getSrc,logFile:fileSplit.pop()},
+                dataType:'json',
+                success: function(res) {
+
+                    console.log(res,'get res')
+                    // Handle success
+                    if(res.success){
+                       
+                        let logsRecent = `<div id='getLogs' class="log-details">
+                                                <div></div>
+                                                <code>${res.logs[0].events}</code>
+                                                    </div>`;
+
+
+                        $('#getLogs').prepend(logsRecent);
+
+
+                        //   Swal.fire({
+                        //     position: 'center',
+                        //     icon: 'success',
+                        //     title: res.message, 
+                        //     showConfirmButton: false,
+                        //     timer: 1500
+                        // });
+                  
+
+                    }
+                },
+                error: function(err) {
+                    console.error('Error:', err);
+                }
+            });
+         }
+
+
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+      }else{
+        $('#streamPlaceholderImage').show();
+        localVideo.pause();
+
+         const local = 'ws://localhost:3000';
+        socket = new WebSocket(local);
+
+            const filetoSend = {
+                        event: 'disconnected',
+                        data: {
+                            fileTitle: '',
+                            filePath: '',
+                        },
+                    };
+
+            socket.onopen = open =>{
+                socket.send(JSON.stringify(filetoSend));
+            }
+
+      }
+
+}
+
+
+    
+
+
+
+                
+
+});
+
 
 
 

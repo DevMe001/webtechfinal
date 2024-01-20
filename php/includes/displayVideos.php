@@ -3,7 +3,7 @@
 include('../db.php');
 
 // Fetch all videos from the database ordered by upload time
-$query = "SELECT fileTitle, filePath FROM multimedia ORDER BY uploadTime ASC";
+$query = "SELECT fileID as id,fileTitle, filePath FROM multimedia ORDER BY uploadTime DESC";
 $result = $db->query($query);
 
 if ($result->num_rows > 0) {
@@ -23,4 +23,3 @@ if ($result->num_rows > 0) {
 
 
 echo json_encode($response);
-?>
