@@ -54,6 +54,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $stmt->bind_param("ss", $fileTitle, $filePath);
 
                 if ($stmt->execute()) {
+                    
+                    $lastInsertedId = $db->insert_id;
+
 
                     $login_inserted = $db->prepare("INSERT INTO recent_logs (type, event,userId) VALUES (?, ?, ?)");
 
@@ -75,7 +78,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     $login_inserted->bind_param("ssi",$uploadName, $events,$userId);
                     
                     if($login_inserted->execute()){
-                        $response = array('success' => true, 'message' => 'File has been uploaded and database entry added successfully.', 'uploaded' => $newFileName, 'name' => $_POST['fileTitle'], 'logs' => $respObj);
+
+                       
+                        $response = array('success' => true, 'message' => 'File has been uploaded and database entry added successfully.', 'uploaded' => $newFileName, 'name' => $_POST['fileTitle'], 'logs' => $respObj,'id' => $lastInsertedId);
                     }
                     else{
                     $response = array('success' => false, 'message' => 'Sorry, logs not working');

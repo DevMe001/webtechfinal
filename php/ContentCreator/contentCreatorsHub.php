@@ -129,6 +129,7 @@ $totalLogs = count($getRecentLogs) > 0 ? true : false;
         <div class="deletescene">
             <div class="contentTitle">Skip Video</div>
             <form id="deleteSceneForm" >
+                 <input type="hidden" name="fileId" id='getCurrentWatchId'>
                 <input type="hidden" name="filePath" id='getFilePath'>
                 <button type="submit" class="delete" name="deleteScene">Skip</button>
             </form>
@@ -197,13 +198,13 @@ $('#deleteSceneForm').submit(function(e){
     let getVideo = $('#localVideo')[0];
 
     let logFile = getVideo.currentSrc.split('/').pop();
-    let getId = $("#getCurrentId").val();
+    let getSelectedWatchId = $("#getCurrentWatchId").val();
     let getPath = $('#getFilePath').val();
 
      $.ajax({
                 url: '../includes/deleteScene.php',
                 method: 'POST',
-                data:{logFile:logFile,fileId:getId,filePath:getPath},
+                data:{logFile:logFile,fileId:getSelectedWatchId,filePath:getPath},
                 dataType:'json',
                 success: function(res) {
 
@@ -391,7 +392,7 @@ $('#startBtn').on('click',function(){
             video.setAttribute('controls',true);
 
 
-
+        $('#getCurrentWatchId').val(data.id);
                     // push to viewer side 
          $('#getCurrentId').val(data.id);
          $('#getFilePath').val(data.filePath.split('/').pop());
@@ -568,6 +569,7 @@ $(document).ready(function() {
                             timer: 1500
                         }).then((result,i) =>{
                             const data = {
+                            id:result.id,
                             index:i,
                             fileTitle:res.name,
                             filePath:`../ContentCreator/uploads/${res.uploaded}`
